@@ -107,6 +107,7 @@ class InclusionProb:
         alpha = float(alpha)
         if alpha < 0.0 or alpha > 1.0:
             raise ValueError("alpha must be between 0 and 1")
+        alpha = alpha + np.finfo("float").eps**0.5
         
         cutoff = float(cutoff)
         if cutoff <= 0.0:
