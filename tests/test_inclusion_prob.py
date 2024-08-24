@@ -1,5 +1,5 @@
 import numpy as np
-from pysps import InclusionProb
+from pysps import InclusionProb, becomes_ta
 
 
 def test_no_sample():
@@ -34,20 +34,20 @@ def test_fixed_point():
     x = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
 
     pi = InclusionProb(x, 5)
-    assert np.isclose(pi.values, InclusionProb(pi.values, pi.n).values).all()
+    assert np.allclose(pi.values, InclusionProb(pi.values, pi.n).values)
 
     x = [0, 4, 1, 4, 5]
     pi = InclusionProb(x, 3, alpha=0.15)
-    assert np.isclose(pi.values, InclusionProb(pi.values, pi.n).values).all()
+    assert np.allclose(pi.values, InclusionProb(pi.values, pi.n).values)
 
 
 def test_with_sampling():
     pi = InclusionProb(np.arange(21), 12)
 
-    assert np.isclose(
+    assert np.allclose(
         pi.values,
         np.concatenate([np.arange(17) / 136 * 8, [1, 1, 1, 1]])
-    ).all()
+    )
     assert np.all(pi.take_all == [17, 18, 19, 20])
     assert np.all(pi.take_some == np.arange(1, 17))
 
@@ -55,10 +55,10 @@ def test_with_sampling():
                   31, 99, 45, 39, 28, 18, 54, 78, 4, 33])
     
     pi = InclusionProb(x, 10)
-    assert np.isclose(
+    assert np.allclose(
         pi.values,
         np.concatenate([[1], x[1:] / np.sum(x[1:]) * 9])
-    ).all()
+    )
 
     pi = InclusionProb(x, 10, alpha=0)
     assert np.isclose(pi.values, x / np.sum(x) * 10).all()
@@ -68,13 +68,13 @@ def test_increasing_alpha():
     x = np.array([0, 4, 1, 4, 5])
 
     pi = InclusionProb(x, 3, alpha=0.1)
-    assert np.isclose(pi.values, np.concatenate([x[:4]/ 9 * 2, [1]])).all()
+    assert np.allclose(pi.values, np.concatenate([x[:4]/ 9 * 2, [1]]))
 
     pi = InclusionProb(x, 3, alpha=0.15)
-    assert np.isclose(pi.values, np.concatenate([[0], [1], x[2:4] / 5, [1]])).all()
+    assert np.allclose(pi.values, np.concatenate([[0], [1], x[2:4] / 5, [1]]))
 
     pi = InclusionProb(x, 3, alpha=0.2)
-    assert np.isclose(pi.values, np.array([0, 1, 0, 1, 1])).all()
+    assert np.allclose(pi.values, np.array([0, 1, 0, 1, 1]))
 
 
 def test_cutoff():
@@ -82,9 +82,15 @@ def test_cutoff():
     pi1 = InclusionProb(x[x < 18], 9)
     pi2 = InclusionProb(x, 12, cutoff=18)
 
-    assert np.isclose(pi1.values[:17], pi2.values[:17]).all()
+    assert np.allclose(pi1.values[:17], pi2.values[:17])
 
     pi1 = InclusionProb(x[x < 18], 9, alpha=0.1)
     pi2 = InclusionProb(x, 12, cutoff=18, alpha=0.1)
 
-    assert np.isclose(pi1.values[:17], pi2.values[:17]).all()
+    assert np.allclose(pi1.values[:17], pi2.values[:17])
+
+
+def test_becomes_ta():
+    x = [6, 4, 3, 4, 2, 1, 4, 2, 2, 1, 2]
+    bta = becomes_ta(x, alpha=0.4, cutoff=6)
+    assert np.all(bta[1:] == np.array([5, 7, 6, 8, 11, 6, 9, 9, 11, 10]))

@@ -21,7 +21,47 @@ def _igpd(shape: float) -> Callable[[npt.ArrayLike], np.ndarray]:
         return lambda x: (1 - (1 - x)**shape) / shape
        
 
-class OrderSample:
+class BaseSample:
+    """
+    Interface for samples.
+    """
+
+    @property
+    def units(self) -> np.ndarray:
+        """
+        Indices for units in the sample.
+        """
+        return self._units.copy()
+    
+    @property
+    def weights(self) -> np.ndarray:
+        """
+        Design weights for units in the sample.
+        """
+        return 1 / self._pi._values[self._units]
+    
+    @property
+    def take_all(self) -> np.ndarray:
+        """
+        Take all units in the sample.
+        """
+        return self._ta.copy()
+    
+    @property
+    def take_some(self) -> np.ndarray:
+        """
+        Take some units in the sample.
+        """
+        return self._ts.copy()
+    
+    def __len__(self) -> int:
+        return len(self._units)
+    
+    def __str__(self) -> str:
+        return str(self._units)
+
+
+class OrderSample(BaseSample):
     """
     Order sampling scheme with fixed distribution shape.
 
@@ -120,34 +160,6 @@ class OrderSample:
         self._pi = pi
         self._prn = u
         self._shape = shape
-
-    @property
-    def units(self) -> np.ndarray:
-        """
-        Indices for units in the sample.
-        """
-        return self._units.copy()
-    
-    @property
-    def weights(self) -> np.ndarray:
-        """
-        Design weights for units in the sample.
-        """
-        return 1 / self._pi._values[self._units]
-    
-    @property
-    def take_all(self) -> np.ndarray:
-        """
-        Take all units in the sample.
-        """
-        return self._ta.copy()
-    
-    @property
-    def take_some(self) -> np.ndarray:
-        """
-        Take some units in the sample.
-        """
-        return self._ts.copy()
     
     @property
     def prn(self) -> np.ndarray:
@@ -156,13 +168,8 @@ class OrderSample:
         """
         return self._prn.copy()
     
-    def __len__(self) -> int:
-        return len(self._units)
-    
     def __repr__(self) -> str:
         pi = repr(self._pi)
         prn = repr(self._prn)
         return f"OrderSample({pi}, {prn}, shape={self._shape})"
     
-    def __str__(self) -> str:
-        return str(self._units)

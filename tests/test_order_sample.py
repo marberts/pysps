@@ -33,3 +33,14 @@ def test_ties():
     samp = OrderSample(pi, pi.values)
 
     assert np.all(samp.units == np.arange(3))
+
+
+def test_all_ta():
+    x = [0, 3, 2, 1]
+    pi = InclusionProb(x, 3)
+    samp = OrderSample(pi)
+
+    assert np.all(samp.take_all == [0, 1, 2])
+    assert np.all(samp.units == samp.take_all + 1)
+    assert np.all(samp.weights == 1)
+    assert samp.take_some.size == 0

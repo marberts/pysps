@@ -107,7 +107,7 @@ class InclusionProb:
         alpha = float(alpha)
         if alpha < 0.0 or alpha > 1.0:
             raise ValueError("alpha must be between 0 and 1")
-        alpha = alpha + np.finfo("float").eps**0.5
+        alpha += np.finfo("float").eps**0.5
         
         cutoff = float(cutoff)
         if cutoff <= 0.0:
@@ -167,3 +167,65 @@ class InclusionProb:
     def __len__(self) -> int:
         return len(self._values)
     
+
+def becomes_ta(x: npt.ArrayLike, *,
+               alpha: float = 0.001,
+               cutoff: float = np.Inf) -> np.ndarray:
+    """
+    Calculate the sample size at which a unit enters the take-all stratum.
+
+    Parameters
+    ----------
+    x : ArrayLike 
+        Sizes for units in the population. Should be a flat array of 
+        positive numbers.
+    alpha : float, optional
+        A number between 0 and 1 such that units with inclusion 
+        probabilities greater than or equal to 1 - alpha are set to 
+        1. The default is slightly larger than 0.
+    cutoff : float, optional
+        A number such that all units with size greater than or equal to
+        cutoff get an inclusion probability of 1. The default does not
+        apply a cutoff.
+
+    Returns
+    -------
+    Array
+        Sample size at which a unit in the population enters the
+        take-all stratum.
+
+    Examples
+    --------
+    >>> x = np.arange(6)
+    >>> becomes_ta(x)
+    array([nan,  5.,  5.,  4.,  4.,  3.])
+    """
+    x = np.asfarray(x).flatten()
+    if np.any(x < 0.0):
+        raise ValueError(
+            "elements of x must be greater than or equal to 0"
+        )
+    if not np.all(np.isfinite(x)):
+        raise ValueError("all elements of x must be finite")
+
+    alpha = float(alpha)
+    if alpha < 0.0 or alpha > 1.0:
+        raise ValueError("alpha must be between 0 and 1")
+    alpha += np.finfo("float").eps**0.5
+    
+    cutoff = float(cutoff)
+    if cutoff <= 0.0:
+        raise ValueError("cutoff must greater than 0")
+
+    ta = np.flatnonzero(x >= cutoff)
+    x[ta] = 0.0
+
+    ord = np.flip(np.argsort(-x, kind="stable"))
+    x = x[ord]
+
+    with np.errstate(invalid="ignore"):
+        res = np.maximum(np.ceil(np.cumsum(x) / x * (1 - alpha)), 1)
+    
+    res += len(x) + len(ta) - np.arange(1, len(x) + 1)
+
+    return res[np.argsort(ord, kind="stable")]
