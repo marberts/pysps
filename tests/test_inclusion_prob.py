@@ -4,6 +4,7 @@ from pysps import InclusionProb, becomes_ta
 
 def test_no_sample():
     pi = InclusionProb([0], 0)
+
     assert pi.n == 0
     assert pi.take_all.size == 0
     assert pi.take_some.size == 0
@@ -11,6 +12,7 @@ def test_no_sample():
 
     x = [1, 2, 3]
     pi = InclusionProb(x, 0)
+    
     assert pi.n == 0
     assert pi.take_all.size == 0
     assert np.all(pi.take_some == np.array([0, 1, 2], dtype=np.int64))
@@ -93,4 +95,6 @@ def test_cutoff():
 def test_becomes_ta():
     x = [6, 4, 3, 4, 2, 1, 4, 2, 2, 1, 2]
     bta = becomes_ta(x, alpha=0.4, cutoff=6)
+    
     assert np.all(bta[1:] == np.array([5, 7, 6, 8, 11, 6, 9, 9, 11, 10]))
+    assert np.isnan(bta[0])

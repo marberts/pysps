@@ -7,7 +7,9 @@ import numpy.typing as npt
 
 
 def _pi(x: np.ndarray, n: int) -> np.ndarray:
-    """Unbounded first-order inclusion probabilities."""
+    """
+    Unbounded first-order inclusion probabilities.
+    """
     if n == 0:
         return np.repeat(0.0, len(x))
     else:
@@ -17,7 +19,9 @@ def _pi(x: np.ndarray, n: int) -> np.ndarray:
 def _which_ta(x: np.ndarray,
               n: int,
               alpha: float) -> np.ndarray:
-    """Indices for take-all units."""
+    """
+    Indices for take-all units.
+    """
     # Sorting should be stable. Sorting in reverse order then flipping
     # means ties resolve according to the order of x.
     ord = np.argsort(-x, kind="stable")
@@ -29,6 +33,35 @@ def _which_ta(x: np.ndarray,
     # Therefore...
     # p[k] >= 1 - alpha  =>  p[k + 1] >= 1 - alpha
     return possible_ta[p >= 1.0 - alpha]
+
+
+def _validate_input(x: npt.ArrayLike,
+                    n:int,
+                    alpha: float,
+                    cutoff: float) -> None:
+        """
+        Validate inputs for inclusion probabilities.
+        """
+        if np.any(x < 0.0):
+            raise ValueError(
+                "elements of x must be greater than or equal to 0"
+            )
+        if not np.all(np.isfinite(x)):
+            raise ValueError("all elements of x must be finite")
+
+        if n < 0:
+            raise ValueError("n must be greater than or equal to 0")
+        if n > np.sum(x > 0.0):
+            raise ValueError(
+                "n cannot be greater than the number of units with "
+                "non-zero sizes in the population"
+            )
+
+        if alpha < 0.0 or alpha > 1.0:
+            raise ValueError("alpha must be between 0 and 1")
+        
+        if cutoff <= 0.0:
+            raise ValueError("cutoff must greater than 0")
 
 
 class InclusionProb:
@@ -74,9 +107,9 @@ class InclusionProb:
     # Units 1-4 belong to the take-some stratum, and units 5 belongs to
     # the take-all stratum
     >>> pi.take_some
-    array([1, 2, 3, 4], dtype=int64)
+    array([1, 2, 3, 4])
     >>> pi.take_all
-    array([5], dtype=int64)
+    array([5])
 
     # Calculate design weights for a PPS sampling scheme
     >>> 1 / pi.values
@@ -86,42 +119,23 @@ class InclusionProb:
                  x: npt.ArrayLike,
                  n: int, *,
                  alpha: float = 0.001,
-                 cutoff: float = np.Inf) -> None:     
+                 cutoff: float = np.Inf) -> None:
         x = np.asfarray(x).flatten() # copy
-        if np.any(x < 0.0):
-            raise ValueError(
-                "elements of x must be greater than or equal to 0"
-            )
-        if not np.all(np.isfinite(x)):
-            raise ValueError("all elements of x must be finite")
-
         n = int(n)
-        if n < 0:
-            raise ValueError("n must be greater than or equal to 0")
-        if n > np.sum(x > 0.0):
-            raise ValueError(
-                "n cannot be greater than the number of units with "
-                "non-zero sizes in the population"
-            )
-
         alpha = float(alpha)
-        if alpha < 0.0 or alpha > 1.0:
-            raise ValueError("alpha must be between 0 and 1")
-        alpha += np.finfo("float").eps**0.5
-        
         cutoff = float(cutoff)
-        if cutoff <= 0.0:
-            raise ValueError("cutoff must greater than 0")
+        _validate_input(x, n, alpha, cutoff) 
         
         ta = np.flatnonzero(x >= cutoff)
         if len(ta) > n:
             raise ValueError(
                 "n is too small to include all units above cutoff"
             )
-        
         x[ta] = 0.0
 
         pi = _pi(x, n - len(ta))
+        alpha += np.finfo("float").eps**0.5
+
         if np.any(pi >= 1 - alpha):
             ta2 = _which_ta(x, n - len(ta), alpha)
             x[ta2] = 0.0
@@ -138,22 +152,30 @@ class InclusionProb:
 
     @property
     def values(self) -> np.ndarray:
-        """Vector of inclusion probabilties."""
+        """
+        Vector of inclusion probabilties.
+        """
         return self._values.copy()
     
     @property
     def n(self) -> int:
-        """Sample size."""
+        """
+        Sample size.
+        """
         return self._n
     
     @property
     def take_all(self) -> np.ndarray:
-        """Take all units."""
+        """
+        Take all units.
+        """
         return self._ta.copy()
     
     @property
     def take_some(self) -> np.ndarray:
-        """Take some units."""
+        """
+        Take some units.
+        """
         return self._ts.copy()
     
     # Inclusion probabilities are a fixed point for the inclusion
@@ -192,30 +214,19 @@ def becomes_ta(x: npt.ArrayLike, *,
     -------
     Array
         Sample size at which a unit in the population enters the
+        take-all stratum. A result of nan means that unit is always in the
         take-all stratum.
 
     Examples
     --------
     >>> x = np.arange(6)
     >>> becomes_ta(x)
-    array([nan,  5.,  5.,  4.,  4.,  3.])
+    array([nan,  5.0,  5.0,  4.0,  4.0,  3.0])
     """
     x = np.asfarray(x).flatten()
-    if np.any(x < 0.0):
-        raise ValueError(
-            "elements of x must be greater than or equal to 0"
-        )
-    if not np.all(np.isfinite(x)):
-        raise ValueError("all elements of x must be finite")
-
-    alpha = float(alpha)
-    if alpha < 0.0 or alpha > 1.0:
-        raise ValueError("alpha must be between 0 and 1")
-    alpha += np.finfo("float").eps**0.5
-    
+    alpha = float(alpha)  
     cutoff = float(cutoff)
-    if cutoff <= 0.0:
-        raise ValueError("cutoff must greater than 0")
+    _validate_input(x, 0, alpha, cutoff)
 
     ta = np.flatnonzero(x >= cutoff)
     x[ta] = 0.0
@@ -223,6 +234,7 @@ def becomes_ta(x: npt.ArrayLike, *,
     ord = np.flip(np.argsort(-x, kind="stable"))
     x = x[ord]
 
+    alpha += np.finfo("float").eps**0.5
     with np.errstate(invalid="ignore"):
         res = np.maximum(np.ceil(np.cumsum(x) / x * (1 - alpha)), 1)
     

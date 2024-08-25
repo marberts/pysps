@@ -14,18 +14,36 @@ def _igpd(shape: float) -> Callable[[npt.ArrayLike], np.ndarray]:
     """
     Inverse of the generalized Pareto distribution.
     """
-
     if shape == 0.0:
         return lambda x: -np.log(1 - x)
     else:
         return lambda x: (1 - (1 - x)**shape) / shape
+    
+
+def _generate_random_deviates(prn: npt.ArrayLike | None,
+                              pi: InclusionProb) -> np.ndarray:
+    """
+    Generate a vector of random numbers for drawing a sample.
+    """
+    if prn is None:
+        u = np.random.default_rng().uniform(size=len(pi))
+    else:
+        u = np.asfarray(prn).ravel()
+        if len(u) != len(pi):
+            raise ValueError("pi and prn must be the same length")
+        if np.any(u <= 0.0) or np.any(u >= 1.0):
+            raise ValueError(
+                "all elements of prn must be in (0, 1)"
+            )
+        if not np.all(np.isfinite(prn)):
+            raise ValueError("all elements of prn must be finite")
+    return u
        
 
 class BaseSample:
     """
-    Interface for samples.
+    Interface for sample classes.
     """
-
     @property
     def units(self) -> np.ndarray:
         """
@@ -53,6 +71,13 @@ class BaseSample:
         Take some units in the sample.
         """
         return self._ts.copy()
+    
+    @property
+    def prn(self) -> np.ndarray:
+        """
+        Random numbers used for drawing the sample.
+        """
+        return self._prn.copy()
     
     def __len__(self) -> int:
         return len(self._units)
@@ -104,43 +129,33 @@ class OrderSample(BaseSample):
     >>> x = np.arange(10)
     >>> pi = InclusionProb(x, 6)
 
-    # Draw a sequential Poisson sample using permanent random numbers
+    # Draw a sequential Poisson sample using permanent random numbers.
     >>> prn = np.random.default_rng(54321).uniform(size=10)
     >>> sample = OrderSample(pi, prn)
     >>> sample.units
-    array([3, 4, 5, 7, 8, 9], dtype=int64)
+    array([3, 4, 5, 7, 8, 9])
 
-    # Get the design weights
+    # Get the design weights.
     >>> sample.weights
     array([2.33333333, 1.75, 1.4, 1.0, 1.0, 1.0])
 
     # Units 0 to 2 are take-some units...
     >>> sample.take_some
-    array([0, 1, 2], dtype=int64)
+    array([0, 1, 2])
 
-    # ... and units 3 to 5 are take-all units
+    # ... and units 3 to 5 are take-all units.
     >>> sample.take_all
     array([3, 4, 5], dtype=int64)
     
-    # Draw a Pareto order sample using the same permanent random numbers
+    # Draw a Pareto order sample using the same permanent random numbers.
     >>> OrderSample(pi, prn, shape=-1).units
-    array([3, 5, 6, 7, 8, 9], dtype=int64)
+    array([3, 5, 6, 7, 8, 9])
     """
     def __init__(self,
                  pi: InclusionProb,
                  prn: npt.ArrayLike | None = None, *,
-                 shape: float = 1.0) -> np.ndarray:
-        if prn is None:
-            u = np.random.default_rng().uniform(size=len(pi))
-        else:
-            u = np.asfarray(prn).ravel()
-            if len(u) != len(pi):
-                raise ValueError("pi and prn must be the same length")
-            if np.any(u <= 0.0) or np.any(u >= 1.0):
-                raise ValueError(
-                    "all elements of prn must be in (0, 1)"
-                )
-            
+                 shape: float = 1.0) -> None:
+        u = _generate_random_deviates(prn, pi)
         shape = float(shape)
         n_ts = pi._n - len(pi._ta)
         if n_ts == 0:
@@ -161,15 +176,58 @@ class OrderSample(BaseSample):
         self._prn = u
         self._shape = shape
     
-    @property
-    def prn(self) -> np.ndarray:
-        """
-        Random numbers used for drawing the sample.
-        """
-        return self._prn.copy()
-    
     def __repr__(self) -> str:
         pi = repr(self._pi)
         prn = repr(self._prn)
         return f"OrderSample({pi}, {prn}, shape={self._shape})"
     
+
+class PoissonSample(BaseSample):
+    """
+    Ordinary Poisson sampling.
+
+    Parameters
+    ----------
+    pi : InclusionProb
+        Inclusion probabilities for units in the population.
+    prn : ArrayLike, optional
+        Permanent random numbers. Should be a flat array of values, the
+        same length as x, distributed uniform between 0 and 1. The 
+        default draws a sample without permanent random numbers.
+
+    Returns
+    -------
+    PoissonSample
+        Indices for units in the sample.
+
+    References
+    ----------
+    Ohlsson, E. (1998). Sequential Poisson Sampling. Journal of 
+        Official Statistics, 14(2): 149-162.
+
+    Examples
+    --------
+    >>> x = np.arange(10)
+    >>> pi = InclusionProb(x, 6)
+
+    # Draw an ordinary Poisson sample using permanent random numbers.
+    >>> prn = np.random.default_rng(54321).uniform(size=10)
+    >>> sample = PoissonSample(pi, prn)
+    >>> sample.units
+    array([3, 4, 5, 6, 7, 8, 9])
+    """
+    def __init__(self,
+                 pi: InclusionProb,
+                 prn: npt.ArrayLike | None = None) -> None:
+        u = _generate_random_deviates(prn, pi)
+        self._units = np.flatnonzero(u < pi._values)
+        ta = np.isin(self._units, pi._ta, assume_unique=True)
+        self._ta = np.flatnonzero(ta)
+        self._ts = np.flatnonzero(~ta)
+        self._pi = pi
+        self._prn = u
+
+    def __repr__(self) -> str:
+        pi = repr(self._pi)
+        prn = repr(self._prn)
+        return f"PoissonSample({pi}, {prn})"
