@@ -98,3 +98,16 @@ def test_becomes_ta():
     
     assert np.all(bta[1:] == np.array([5, 7, 6, 8, 11, 6, 9, 9, 11, 10]))
     assert np.isnan(bta[0])
+
+def test_sort_method():
+    x = np.array([1, 2, 2, 4, 2, 4, 5, 5, 5])
+
+    pi1 = InclusionProb(x, 6, alpha=0.8)
+    pi2 = InclusionProb(x, 6, alpha=0.8, sort_method="partial")
+
+    assert set(x[pi1.take_all]) == set(x[pi2.take_all])
+
+    pi1 = InclusionProb(x, 6, alpha=0.5)
+    pi2 = InclusionProb(x, 6, alpha=0.5, sort_method="partial")
+
+    assert np.all(pi1.values == pi2.values)

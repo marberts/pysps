@@ -16,6 +16,8 @@ def _igpd(shape: float) -> Callable[[npt.ArrayLike], np.ndarray]:
     """
     if shape == 0.0:
         return lambda x: -np.log(1 - x)
+    elif shape == 1.0:
+        return lambda x: x
     else:
         return lambda x: (1 - (1 - x)**shape) / shape
     
@@ -28,7 +30,7 @@ def _generate_random_deviates(prn: npt.ArrayLike | None,
     if prn is None:
         u = np.random.default_rng().uniform(size=len(pi))
     else:
-        u = np.asfarray(prn).ravel()
+        u = np.asarray(prn, dtype=np.float64).ravel()
         if len(u) != len(pi):
             raise ValueError("pi and prn must be the same length")
         if np.any(u <= 0.0) or np.any(u >= 1.0):
@@ -105,6 +107,10 @@ class OrderSample(BaseSample):
         shape=1  => Sequential Poisson sampling (the default)
         shape=0  => Successive sampling
         shape=-1 => Pareto order sampling
+    sort_method : {'partial', 'stable'}, optional
+        Sorting method to use for drawing the sample. The default
+        uses a partial sort. Use 'stable' if ties should resolve in
+        order.
 
     Returns
     -------
@@ -154,7 +160,8 @@ class OrderSample(BaseSample):
     def __init__(self,
                  pi: InclusionProb,
                  prn: npt.ArrayLike | None = None, *,
-                 shape: float = 1.0) -> None:
+                 shape: float = 1.0,
+                 sort_method: str = "partial") -> None:
         u = _generate_random_deviates(prn, pi)
         shape = float(shape)
         n_ts = pi._n - len(pi._ta)
@@ -163,8 +170,14 @@ class OrderSample(BaseSample):
         else:
             dist = _igpd(shape)
             xi = dist(u[pi._ts]) / dist(pi._values[pi._ts])
-            # Sorting should be stable so that ties resolve in order.
-            keep = np.argsort(xi, kind="stable")[:n_ts]
+            if sort_method == "partial":
+                keep = np.argpartition(xi, n_ts)[:n_ts]
+            elif sort_method == "stable":
+                keep = np.argsort(xi, kind="stable")[:n_ts]
+            else:
+                raise ValueError(
+                    "'sort_method' should be either 'partial' or 'stable'"
+                )
             res = np.concatenate((pi._ta, pi._ts[keep]))
             res.sort()
             self._units = res

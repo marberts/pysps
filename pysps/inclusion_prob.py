@@ -18,13 +18,18 @@ def _pi(x: np.ndarray, n: int) -> np.ndarray:
 
 def _which_ta(x: np.ndarray,
               n: int,
-              alpha: float) -> np.ndarray:
+              alpha: float,
+              sort_method: str) -> np.ndarray:
     """
     Indices for take-all units.
     """
-    # Sorting should be stable. Sorting in reverse order then flipping
-    # means ties resolve according to the order of x.
-    ord = np.argsort(-x, kind="stable")
+    # Sorting should be stable if there are ties in x.
+    # Sorting in reverse order then flippingmeans ties resolve
+    # according to the order of x.
+    if sort_method == "partial":
+        ord = np.argpartition(-x, range(n))
+    else:
+        ord = np.argsort(-x, kind="stable")
     possible_ta = np.flip(ord[:n])
     x_ta = x[possible_ta]
     p = x_ta * np.arange(1, n + 1) / (np.sum(x[ord[n:]]) + np.cumsum(x_ta))
@@ -84,6 +89,10 @@ class InclusionProb:
         A number such that all units with size greater than or equal to
         cutoff get an inclusion probability of 1. The default does not
         apply a cutoff.
+    sort_method : {'stable', 'partial'}, optional
+        Sorting method to use when allocation take-all units. The default
+        uses a stable sort. Using a partial sort can be faster if there
+        are no duplicate in x.
 
     Returns
     -------
@@ -119,12 +128,18 @@ class InclusionProb:
                  x: npt.ArrayLike,
                  n: int, *,
                  alpha: float = 0.001,
-                 cutoff: float = np.Inf) -> None:
-        x = np.asfarray(x).flatten() # copy
+                 cutoff: float = np.inf,
+                 sort_method: str = "stable") -> None:
+        x = np.asarray(x, dtype=np.float64).flatten() # copy
         n = int(n)
         alpha = float(alpha)
         cutoff = float(cutoff)
         _validate_input(x, n, alpha, cutoff) 
+
+        if sort_method != "partial" and sort_method != "stable":
+            raise ValueError(
+                "'sort_method' should be either 'partial' or 'stable'"
+            )
         
         ta = np.flatnonzero(x >= cutoff)
         if len(ta) > n:
@@ -137,7 +152,7 @@ class InclusionProb:
         alpha += np.finfo("float").eps**0.5
 
         if np.any(pi >= 1 - alpha):
-            ta2 = _which_ta(x, n - len(ta), alpha)
+            ta2 = _which_ta(x, n - len(ta), alpha, sort_method)
             x[ta2] = 0.0
             ta = np.concatenate([ta, ta2])
             pi = _pi(x, n - len(ta))
@@ -192,7 +207,7 @@ class InclusionProb:
 
 def becomes_ta(x: npt.ArrayLike, *,
                alpha: float = 0.001,
-               cutoff: float = np.Inf) -> np.ndarray:
+               cutoff: float = np.inf) -> np.ndarray:
     """
     Calculate the sample size at which a unit enters the take-all stratum.
 
@@ -223,7 +238,7 @@ def becomes_ta(x: npt.ArrayLike, *,
     >>> becomes_ta(x)
     array([nan,  5.0,  5.0,  4.0,  4.0,  3.0])
     """
-    x = np.asfarray(x).flatten()
+    x = np.asarray(x, dtype=np.float64).flatten()
     alpha = float(alpha)  
     cutoff = float(cutoff)
     _validate_input(x, 0, alpha, cutoff)
