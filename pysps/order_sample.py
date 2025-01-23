@@ -19,11 +19,12 @@ def _igpd(shape: float) -> Callable[[npt.ArrayLike], np.ndarray]:
     elif shape == 1.0:
         return lambda x: x
     else:
-        return lambda x: (1 - (1 - x)**shape) / shape
-    
+        return lambda x: (1 - (1 - x) ** shape) / shape
 
-def _generate_random_deviates(prn: npt.ArrayLike | None,
-                              pi: InclusionProb) -> np.ndarray:
+
+def _generate_random_deviates(
+    prn: npt.ArrayLike | None, pi: InclusionProb
+) -> np.ndarray:
     """
     Generate a vector of random numbers for drawing a sample.
     """
@@ -34,56 +35,55 @@ def _generate_random_deviates(prn: npt.ArrayLike | None,
         if len(u) != len(pi):
             raise ValueError("pi and prn must be the same length")
         if np.any(u <= 0.0) or np.any(u >= 1.0):
-            raise ValueError(
-                "all elements of prn must be in (0, 1)"
-            )
+            raise ValueError("all elements of prn must be in (0, 1)")
         if not np.all(np.isfinite(prn)):
             raise ValueError("all elements of prn must be finite")
     return u
-       
+
 
 class BaseSample:
     """
     Interface for sample classes.
     """
+
     @property
     def units(self) -> np.ndarray:
         """
         Indices for units in the sample.
         """
         return self._units.copy()
-    
+
     @property
     def weights(self) -> np.ndarray:
         """
         Design weights for units in the sample.
         """
         return 1 / self._pi._values[self._units]
-    
+
     @property
     def take_all(self) -> np.ndarray:
         """
         Take all units in the sample.
         """
         return self._ta.copy()
-    
+
     @property
     def take_some(self) -> np.ndarray:
         """
         Take some units in the sample.
         """
         return self._ts.copy()
-    
+
     @property
     def prn(self) -> np.ndarray:
         """
         Random numbers used for drawing the sample.
         """
         return self._prn.copy()
-    
+
     def __len__(self) -> int:
         return len(self._units)
-    
+
     def __str__(self) -> str:
         return str(self._units)
 
@@ -98,7 +98,7 @@ class OrderSample(BaseSample):
         Inclusion probabilities for units in the population.
     prn : ArrayLike, optional
         Permanent random numbers. Should be a flat array of values, the
-        same length as x, distributed uniform between 0 and 1. The 
+        same length as x, distributed uniform between 0 and 1. The
         default draws a sample without permanent random numbers.
     shape : float, optional
         Shape parameter for the generalized Pareto distribution that is
@@ -123,11 +123,11 @@ class OrderSample(BaseSample):
         sampling schemes. Computational Statistics & Data Analysis, 51:
         3703-3717.
 
-    Ohlsson, E. (1998). Sequential Poisson Sampling. Journal of 
+    Ohlsson, E. (1998). Sequential Poisson Sampling. Journal of
         Official Statistics, 14(2): 149-162.
-    
-    Rosén, B. (1997). On sampling with probability proportional to 
-        size. Journal of Statistical Planning and Inference, 62(2): 
+
+    Rosén, B. (1997). On sampling with probability proportional to
+        size. Journal of Statistical Planning and Inference, 62(2):
         159-191.
 
     Examples
@@ -152,16 +152,20 @@ class OrderSample(BaseSample):
     # ... and units 3 to 5 are take-all units.
     >>> sample.take_all
     array([3, 4, 5], dtype=int64)
-    
+
     # Draw a Pareto order sample using the same permanent random numbers.
     >>> OrderSample(pi, prn, shape=-1).units
     array([3, 5, 6, 7, 8, 9])
     """
-    def __init__(self,
-                 pi: InclusionProb,
-                 prn: npt.ArrayLike | None = None, *,
-                 shape: float = 1.0,
-                 sort_method: str = "partial") -> None:
+
+    def __init__(
+        self,
+        pi: InclusionProb,
+        prn: npt.ArrayLike | None = None,
+        *,
+        shape: float = 1.0,
+        sort_method: str = "partial",
+    ) -> None:
         u = _generate_random_deviates(prn, pi)
         shape = float(shape)
         n_ts = pi._n - len(pi._ta)
@@ -175,9 +179,7 @@ class OrderSample(BaseSample):
             elif sort_method == "stable":
                 keep = np.argsort(xi, kind="stable")[:n_ts]
             else:
-                raise ValueError(
-                    "'sort_method' should be either 'partial' or 'stable'"
-                )
+                raise ValueError("'sort_method' should be either 'partial' or 'stable'")
             res = np.concatenate((pi._ta, pi._ts[keep]))
             res.sort()
             self._units = res
@@ -188,12 +190,12 @@ class OrderSample(BaseSample):
         self._pi = pi
         self._prn = u
         self._shape = shape
-    
+
     def __repr__(self) -> str:
         pi = repr(self._pi)
         prn = repr(self._prn)
         return f"OrderSample({pi}, {prn}, shape={self._shape})"
-    
+
 
 class PoissonSample(BaseSample):
     """
@@ -205,7 +207,7 @@ class PoissonSample(BaseSample):
         Inclusion probabilities for units in the population.
     prn : ArrayLike, optional
         Permanent random numbers. Should be a flat array of values, the
-        same length as x, distributed uniform between 0 and 1. The 
+        same length as x, distributed uniform between 0 and 1. The
         default draws a sample without permanent random numbers.
 
     Returns
@@ -215,7 +217,7 @@ class PoissonSample(BaseSample):
 
     References
     ----------
-    Ohlsson, E. (1998). Sequential Poisson Sampling. Journal of 
+    Ohlsson, E. (1998). Sequential Poisson Sampling. Journal of
         Official Statistics, 14(2): 149-162.
 
     Examples
@@ -229,9 +231,8 @@ class PoissonSample(BaseSample):
     >>> sample.units
     array([3, 4, 5, 6, 7, 8, 9])
     """
-    def __init__(self,
-                 pi: InclusionProb,
-                 prn: npt.ArrayLike | None = None) -> None:
+
+    def __init__(self, pi: InclusionProb, prn: npt.ArrayLike | None = None) -> None:
         u = _generate_random_deviates(prn, pi)
         self._units = np.flatnonzero(u < pi._values)
         ta = np.isin(self._units, pi._ta, assume_unique=True)
