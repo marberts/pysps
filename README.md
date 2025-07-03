@@ -1,7 +1,13 @@
-# A Python module for sequential Poisson sampling
+# Sequential Poisson sampling with Python
 
-A quick Python implementation of some functions from the `sps` R package.
-Requires Python >= 3.10 and numpy.
+Sequential Poisson sampling is a variation of Poisson sampling for
+drawing probability-proportional-to-size samples with a given number of
+units, and is commonly used for price-index surveys. This package in a
+Python implementation of the {sps} R package.
+
+## Installation
+
+## Usage
 
 ```python
 >>> import pysps
