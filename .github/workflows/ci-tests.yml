@@ -24,6 +24,6 @@ jobs:
           python-version: ${{ matrix.python-version }}
       - name: Install dependencies
         run:
-          pip install numpy
+          pip install numpy pytest
       - name: pytest unit tests
         run: python -m pytest
