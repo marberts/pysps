@@ -1,0 +1,6 @@
+/.quarto/
+
+_site
+_sidebar.yml
+objects.json
+reference

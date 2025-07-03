@@ -21,7 +21,7 @@ def _which_ta(x: np.ndarray, n: int, alpha: float, sort_method: str) -> np.ndarr
     Indices for take-all units.
     """
     # Sorting should be stable if there are ties in x.
-    # Sorting in reverse order then flippingmeans ties resolve
+    # Sorting in reverse order then flipping means ties resolve
     # according to the order of x.
     if sort_method == "partial":
         ord = np.argpartition(-x, range(n))
@@ -100,21 +100,23 @@ class InclusionProb:
 
     Examples
     --------
-    >>> x = np.arange(6)
-    >>> pi = InclusionProb(x, 3)
-    >>> pi
-    InclusionProb(array([0.0, 0.2, 0.4, 0.6, 0.8, 1.0]), 3)
+    ```{python}
+    x = np.arange(6)
+    pi = InclusionProb(x, 3)
+    pi
+    ```
 
-    # Units 1-4 belong to the take-some stratum, and units 5 belongs to
-    # the take-all stratum
-    >>> pi.take_some
-    array([1, 2, 3, 4])
-    >>> pi.take_all
-    array([5])
+    Units 1-4 belong to the take-some stratum, and units 5 belongs to
+    the take-all stratum
+    ```{python}
+    pi.take_some
+    pi.take_all
+    ```
 
-    # Calculate design weights for a PPS sampling scheme
-    >>> 1 / pi.values
-    array([inf, 5.0, 2.5, 1.66666667, 1.25, 1.0])
+    Calculate design weights for a PPS sampling scheme
+    ```{python}
+    1 / pi.values
+    ```
     """
 
     def __init__(
@@ -226,9 +228,10 @@ def becomes_ta(
 
     Examples
     --------
-    >>> x = np.arange(6)
-    >>> becomes_ta(x)
-    array([nan,  5.0,  5.0,  4.0,  4.0,  3.0])
+    ```{python}
+    x = np.arange(6)
+    becomes_ta(x)
+    ```
     """
     x = np.asarray(x, dtype=np.float64).flatten()
     alpha = float(alpha)

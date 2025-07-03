@@ -132,30 +132,37 @@ class OrderSample(BaseSample):
 
     Examples
     --------
-    >>> x = np.arange(10)
-    >>> pi = InclusionProb(x, 6)
+    ```{python}
+    x = np.arange(10)
+    pi = InclusionProb(x, 6)
+    ```
 
-    # Draw a sequential Poisson sample using permanent random numbers.
-    >>> prn = np.random.default_rng(54321).uniform(size=10)
-    >>> sample = OrderSample(pi, prn)
-    >>> sample.units
-    array([3, 4, 5, 7, 8, 9])
+    Draw a sequential Poisson sample using permanent random numbers.
+    ```{python}
+    prn = np.random.default_rng(54321).uniform(size=10)
+    sample = OrderSample(pi, prn)
+    sample.units
+    ```
 
-    # Get the design weights.
-    >>> sample.weights
-    array([2.33333333, 1.75, 1.4, 1.0, 1.0, 1.0])
+    Get the design weights.
+    ```{python}
+    sample.weights
+    ```
 
-    # Units 0 to 2 are take-some units...
-    >>> sample.take_some
-    array([0, 1, 2])
+    Units 0 to 2 are take-some units...
+    ```{python}
+    sample.take_some
+    ```
 
-    # ... and units 3 to 5 are take-all units.
-    >>> sample.take_all
-    array([3, 4, 5], dtype=int64)
+    ... and units 3 to 5 are take-all units.
+    ```{python}
+    sample.take_all
+    ```
 
-    # Draw a Pareto order sample using the same permanent random numbers.
-    >>> OrderSample(pi, prn, shape=-1).units
-    array([3, 5, 6, 7, 8, 9])
+    Draw a Pareto order sample using the same permanent random numbers.
+    ```{python}
+    OrderSample(pi, prn, shape=-1).units
+    ```
     """
 
     def __init__(
@@ -222,14 +229,17 @@ class PoissonSample(BaseSample):
 
     Examples
     --------
-    >>> x = np.arange(10)
-    >>> pi = InclusionProb(x, 6)
+    ```{python}
+    x = np.arange(10)
+    pi = InclusionProb(x, 6)
+    ```
 
-    # Draw an ordinary Poisson sample using permanent random numbers.
-    >>> prn = np.random.default_rng(54321).uniform(size=10)
-    >>> sample = PoissonSample(pi, prn)
-    >>> sample.units
-    array([3, 4, 5, 6, 7, 8, 9])
+    Draw an ordinary Poisson sample using permanent random numbers.
+    ```{python}
+    prn = np.random.default_rng(54321).uniform(size=10)
+    sample = PoissonSample(pi, prn)
+    sample.units
+    ```
     """
 
     def __init__(self, pi: InclusionProb, prn: npt.ArrayLike | None = None) -> None:
