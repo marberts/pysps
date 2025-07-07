@@ -120,48 +120,56 @@ class OrderSample(BaseSample):
     References
     ----------
     Matei, A., and Tillé, Y. (2007). Computational aspects of order πps
-        sampling schemes. Computational Statistics & Data Analysis, 51:
+        sampling schemes. _Computational Statistics & Data Analysis_, 51:
         3703-3717.
 
-    Ohlsson, E. (1998). Sequential Poisson Sampling. Journal of
-        Official Statistics, 14(2): 149-162.
+    Ohlsson, E. (1998). Sequential Poisson Sampling. _Journal of
+        Official Statistics_, 14(2): 149-162.
 
     Rosén, B. (1997). On sampling with probability proportional to
-        size. Journal of Statistical Planning and Inference, 62(2):
+        size. _Journal of Statistical Planning and Inference_, 62(2):
         159-191.
 
     Examples
     --------
     ```{python}
+    import numpy as np
+    import pysps
+
     x = np.arange(10)
-    pi = InclusionProb(x, 6)
+    pi = pysps.InclusionProb(x, 6)
     ```
 
-    Draw a sequential Poisson sample using permanent random numbers.
     ```{python}
+    # Draw a sequential Poisson sample using permanent random numbers.
+
     prn = np.random.default_rng(54321).uniform(size=10)
-    sample = OrderSample(pi, prn)
+    sample = pysps.OrderSample(pi, prn)
     sample.units
     ```
 
-    Get the design weights.
     ```{python}
+    # Get the design weights.
+    
     sample.weights
     ```
 
-    Units 0 to 2 are take-some units...
     ```{python}
+    # Units 0 to 2 are take-some units...
+    
     sample.take_some
     ```
 
-    ... and units 3 to 5 are take-all units.
     ```{python}
+    # ... and units 3 to 5 are take-all units.
+    
     sample.take_all
     ```
 
-    Draw a Pareto order sample using the same permanent random numbers.
     ```{python}
-    OrderSample(pi, prn, shape=-1).units
+    # Draw a Pareto order sample using the same permanent random numbers.
+    
+    pysps.OrderSample(pi, prn, shape=-1).units
     ```
     """
 
@@ -224,20 +232,24 @@ class PoissonSample(BaseSample):
 
     References
     ----------
-    Ohlsson, E. (1998). Sequential Poisson Sampling. Journal of
-        Official Statistics, 14(2): 149-162.
+    Ohlsson, E. (1998). Sequential Poisson Sampling. _Journal of
+        Official Statistics_, 14(2): 149-162.
 
     Examples
     --------
     ```{python}
+    import numpy as np
+    import pysps
+
     x = np.arange(10)
-    pi = InclusionProb(x, 6)
+    pi = pysps.InclusionProb(x, 6)
     ```
 
-    Draw an ordinary Poisson sample using permanent random numbers.
     ```{python}
+    # Draw an ordinary Poisson sample using permanent random numbers.
+
     prn = np.random.default_rng(54321).uniform(size=10)
-    sample = PoissonSample(pi, prn)
+    sample = pysps.PoissonSample(pi, prn)
     sample.units
     ```
     """

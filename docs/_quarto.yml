@@ -5,6 +5,7 @@ website:
   title: pysps
   description: Sequential Poisson sampling in Python
   navbar:
+    logo: logo.png
     left:
       - file: index.qmd
         text: Getting started

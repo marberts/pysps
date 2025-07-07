@@ -101,21 +101,26 @@ class InclusionProb:
     Examples
     --------
     ```{python}
-    x = np.arange(6)
-    pi = InclusionProb(x, 3)
+    import pysps
+
+    x = [0, 1, 2, 3, 4, 5]
+    pi = pysps.InclusionProb(x, 3)
     pi
     ```
 
-    Units 1-4 belong to the take-some stratum, and units 5 belongs to
-    the take-all stratum
     ```{python}
+    # Units 1-4 belong to the take-some stratum, and units 5 belongs to
+    # the take-all stratum
+    
     pi.take_some
     pi.take_all
     ```
 
-    Calculate design weights for a PPS sampling scheme
     ```{python}
-    1 / pi.values
+    # Calculate design weights for a PPS sampling scheme
+    
+    with np.errstate(invalid="ignore"):
+        1 / pi.values
     ```
     """
 
@@ -229,8 +234,10 @@ def becomes_ta(
     Examples
     --------
     ```{python}
-    x = np.arange(6)
-    becomes_ta(x)
+    import pysps
+
+    x = [0, 1, 2, 3, 4, 5]
+    pysps.becomes_ta(x)
     ```
     """
     x = np.asarray(x, dtype=np.float64).flatten()
