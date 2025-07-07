@@ -1,4 +1,4 @@
-# Sequential Poisson sampling with Python <a href="https://marberts.github.io/pysps/"><img src="docs/logo.png" align="right" height="139" alt="pysps website" /></a>
+# Sequential Poisson sampling <a href="https://marberts.github.io/pysps/"><img src="docs/logo.png" align="right" height="139" alt="pysps website" /></a>
 
 [![CI Build](https://github.com/marberts/pysps/actions/workflows/ci-tests.yml/badge.svg)](https://github.com/marberts/pysps/actions/workflows/ci-tests.yml)
 

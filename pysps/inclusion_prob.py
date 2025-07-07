@@ -101,6 +101,7 @@ class InclusionProb:
     Examples
     --------
     ```{python}
+    import numpy as np
     import pysps
 
     x = [0, 1, 2, 3, 4, 5]
