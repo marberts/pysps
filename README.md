@@ -1,6 +1,7 @@
 # Sequential Poisson sampling <a href="https://marberts.github.io/pysps/"><img src="docs/logo.png" align="right" height="139" alt="pysps website" /></a>
 
 [![CI Build](https://github.com/marberts/pysps/actions/workflows/ci-tests.yml/badge.svg)](https://github.com/marberts/pysps/actions/workflows/ci-tests.yml)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.15825865.svg)](https://doi.org/10.5281/zenodo.15825865)
 
 Sequential Poisson sampling is a variation of Poisson sampling for
 drawing probability-proportional-to-size samples with a given number of

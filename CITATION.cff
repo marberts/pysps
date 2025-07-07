@@ -1,0 +1,13 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it as below."
+type: software
+license: MIT
+title: "pysps: Sequential Poisson sampling"
+version: 0.1.0
+doi: 10.5281/zenodo.15825865
+authors:
+  - family-names: Martin
+    given-names: Steve
+    email: marberts@protonmail.com
+    orcid: https://orcid.org/0000-0003-2544-9480
+date-released: 2025-07-06
