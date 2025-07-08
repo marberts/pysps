@@ -1,6 +1,8 @@
 # Sequential Poisson sampling
 
 [![CI Build](https://github.com/marberts/pysps/actions/workflows/ci-tests.yml/badge.svg)](https://github.com/marberts/pysps/actions/workflows/ci-tests.yml)
+[![PyPI](https://img.shields.io/pypi/v/pysps.svg)](https://pypi.org/project/pysps/)
+![Python Versions](https://img.shields.io/badge/Python-3.10–3.13-blue)
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.15825865.svg)](https://doi.org/10.5281/zenodo.15825865)
 
 Sequential Poisson sampling is a variation of Poisson sampling for
