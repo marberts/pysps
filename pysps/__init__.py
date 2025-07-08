@@ -7,4 +7,4 @@ from pysps.order_sample import OrderSample, PoissonSample
 
 __all__ = ["InclusionProb", "OrderSample", "PoissonSample", "becomes_ta"]
 
-__version__ = "0.1.0"
+__version__ = "0.1.1"

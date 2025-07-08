@@ -63,7 +63,7 @@ def _validate_input(x: npt.ArrayLike, n: int, alpha: float, cutoff: float) -> No
 
 class InclusionProb:
     """
-    Calculate first-order inclusion probabilities.
+    First-order inclusion probabilities for units in the population.
 
     Parameters
     ----------
@@ -84,19 +84,25 @@ class InclusionProb:
     sort_method : {'stable', 'partial'}, optional
         Sorting method to use when allocation take-all units. The default
         uses a stable sort. Using a partial sort can be faster if there
-        are no duplicate in x.
+        are no duplicate in `x`.
 
-    Returns
-    -------
-    InclusionProb
-        Inclusion probabilities for units in the population.
+    Attributes
+    ----------
+    values : Array
+        Vector of inclusion probabilties.
+    n : int
+        Sample size.
+    take_all : Array
+        Take-all units.
+    take_some : Array
+        Take-some units.    
 
     References
     ----------
-    Ohlsson, E. (1998). Sequential Poisson Sampling. Journal of
-        Official Statistics, 14(2): 149-162.
+    Ohlsson, E. (1998). Sequential Poisson Sampling. _Journal of
+        Official Statistics_, 14(2): 149-162.
 
-    Tillé, Y. (2006). Sampling Algorithms. Springer.
+    Tillé, Y. (2006). _Sampling Algorithms_. Springer.
 
     Examples
     --------
@@ -104,7 +110,7 @@ class InclusionProb:
     import numpy as np
     import pysps
 
-    x = [0, 1, 2, 3, 4, 5]
+    x = [1, 2, 3, 4, 5]
     pi = pysps.InclusionProb(x, 3)
     pi
     ```
@@ -120,8 +126,7 @@ class InclusionProb:
     ```{python}
     # Calculate design weights for a PPS sampling scheme
     
-    with np.errstate(invalid="ignore"):
-        1 / pi.values
+    1 / pi.values
     ```
     """
 
@@ -229,7 +234,7 @@ def becomes_ta(
     -------
     Array
         Sample size at which a unit in the population enters the
-        take-all stratum. A result of nan means that unit is always in the
+        take-all stratum. A result of `nan` means that unit is always in the
         take-all stratum.
 
     Examples

@@ -11,6 +11,7 @@ website:
         text: Getting started
       - href: reference/index.qmd
         text: References
+
     right:
       - icon: github
         href: https://github.com/marberts/pysps
@@ -33,12 +34,12 @@ quartodoc:
 
   sections:
     - title: Inclusion probabilities
-      desc: Functions to calculate first-order inclusion probabilities.
+      desc: Functions and classes to calculate first-order inclusion probabilities.
       contents:
         - InclusionProb
         - becomes_ta
     - title: Draw a sample
-      desc: Functions to draw sequential and ordinary Poisson samples
+      desc: Classes to draw sequential and ordinary Poisson samples
       contents:
         - OrderSample
         - PoissonSample

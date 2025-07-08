@@ -1,4 +1,4 @@
-# Sequential Poisson sampling <a href="https://marberts.github.io/pysps/"><img src="docs/logo.png" align="right" height="139" alt="pysps website" /></a>
+# Sequential Poisson sampling
 
 [![CI Build](https://github.com/marberts/pysps/actions/workflows/ci-tests.yml/badge.svg)](https://github.com/marberts/pysps/actions/workflows/ci-tests.yml)
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.15825865.svg)](https://doi.org/10.5281/zenodo.15825865)
@@ -10,16 +10,34 @@ Python implementation of the [{sps}](https://cran.r-project.org/package=sps) R p
 
 ## Installation
 
+Install the stable release from PyPI
+
+```bash
+python -m pip install pysps
 ```
+
+or get the development version from github
+
+```bash
 python -m pip install git+https://github.com/marberts/pysps.git
 ```
 
 ## Usage
 
+The first step to draw a sample is to construct the inclusion probabilties
+for each unit in the population.
+
 ```python
 >>> import pysps
 
 >>> pi = pysps.InclusionProb([1, 2, 3, 4], 3)
+>>> pi
+InclusionProb(array([0.33333333, 0.66666667, 1.        , 1.        ]), 3)
+```
+
+Now these inclusion probabilities can be used to create a sample.
+
+```python
 >>> samp = pysps.OrderSample(pi)
 
 >>> samp.units
@@ -27,4 +45,19 @@ array([1, 2, 3])
 
 >>> samp.weights
 array([1.5, 1.0, 1.0])
+```
+
+## Citation
+
+If you use this software, please cite it
+
+```
+@software{pysps,
+    author = {Martin, Steve},
+    doi = {10.5281/zenodo.15825865},
+    license = {MIT},
+    title = {{pysps: Sequential Poisson sampling}},
+    version = {0.1.1},
+    year = {2025}
+}
 ```

@@ -43,7 +43,7 @@ def _generate_random_deviates(
 
 class BaseSample:
     """
-    Interface for sample classes.
+    Interface for sample classes. Should not be used directly.
     """
 
     @property
@@ -98,7 +98,7 @@ class OrderSample(BaseSample):
         Inclusion probabilities for units in the population.
     prn : ArrayLike, optional
         Permanent random numbers. Should be a flat array of values, the
-        same length as x, distributed uniform between 0 and 1. The
+        same length as `pi`, distributed uniform between 0 and 1. The
         default draws a sample without permanent random numbers.
     shape : float, optional
         Shape parameter for the generalized Pareto distribution that is
@@ -112,10 +112,18 @@ class OrderSample(BaseSample):
         uses a partial sort. Use 'stable' if ties should resolve in
         order.
 
-    Returns
-    -------
-    OrderSample
+    Attributes
+    ----------
+    units : Array
         Indices for units in the sample.
+    weights : Array
+        Design weights for units in the sample.
+    take_all : Array
+        Take-all units in the sample.
+    take_some : Array
+        Take-some units in the sample.
+    prn : Array
+        Random numbers used for drawing the sample.
 
     References
     ----------
@@ -222,13 +230,21 @@ class PoissonSample(BaseSample):
         Inclusion probabilities for units in the population.
     prn : ArrayLike, optional
         Permanent random numbers. Should be a flat array of values, the
-        same length as x, distributed uniform between 0 and 1. The
+        same length as `pi`, distributed uniform between 0 and 1. The
         default draws a sample without permanent random numbers.
 
-    Returns
-    -------
-    PoissonSample
+    Attributes
+    ----------
+    units : Array
         Indices for units in the sample.
+    weights : Array
+        Design weights for units in the sample.
+    take_all : Array
+        Take-all units in the sample.
+    take_some : Array
+        Take-some units in the sample.
+    prn : Array
+        Random numbers used for drawing the sample.
 
     References
     ----------
