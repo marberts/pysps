@@ -158,25 +158,25 @@ class OrderSample(BaseSample):
 
     ```{python}
     # Get the design weights.
-    
+
     sample.weights
     ```
 
     ```{python}
     # Units 0 to 2 are take-some units...
-    
+
     sample.take_some
     ```
 
     ```{python}
     # ... and units 3 to 5 are take-all units.
-    
+
     sample.take_all
     ```
 
     ```{python}
     # Draw a Pareto order sample using the same permanent random numbers.
-    
+
     pysps.OrderSample(pi, prn, shape=-1).units
     ```
     """

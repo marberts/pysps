@@ -95,7 +95,7 @@ class InclusionProb:
     take_all : Array
         Take-all units.
     take_some : Array
-        Take-some units.    
+        Take-some units.
 
     References
     ----------
@@ -118,14 +118,14 @@ class InclusionProb:
     ```{python}
     # Units 1-4 belong to the take-some stratum, and units 5 belongs to
     # the take-all stratum
-    
+
     pi.take_some
     pi.take_all
     ```
 
     ```{python}
     # Calculate design weights for a PPS sampling scheme
-    
+
     1 / pi.values
     ```
     """
