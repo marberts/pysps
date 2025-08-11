@@ -39,7 +39,12 @@ quartodoc:
         - InclusionProb
         - becomes_ta
     - title: Draw a sample
-      desc: Classes to draw sequential and ordinary Poisson samples
+      desc: Classes to draw sequential and ordinary Poisson samples.
       contents:
         - OrderSample
         - PoissonSample
+    - title: Stratification
+      desc: Make an allocation for stratified sampling.
+      contents:
+        - prop_allocation
+        - divisor_method
