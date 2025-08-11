@@ -7,9 +7,7 @@ import numpy.typing as npt
 
 
 def _pi(x: np.ndarray, n: int) -> np.ndarray:
-    """
-    Unbounded first-order inclusion probabilities.
-    """
+    """Unbounded first-order inclusion probabilities."""
     if n == 0:
         return np.repeat(0.0, len(x))
     else:
@@ -17,9 +15,7 @@ def _pi(x: np.ndarray, n: int) -> np.ndarray:
 
 
 def _which_ta(x: np.ndarray, n: int, alpha: float, sort_method: str) -> np.ndarray:
-    """
-    Indices for take-all units.
-    """
+    """Indices for take-all units."""
     # Sorting should be stable if there are ties in x.
     # Sorting in reverse order then flipping means ties resolve
     # according to the order of x.
@@ -38,9 +34,7 @@ def _which_ta(x: np.ndarray, n: int, alpha: float, sort_method: str) -> np.ndarr
 
 
 def _validate_input(x: npt.ArrayLike, n: int, alpha: float, cutoff: float) -> None:
-    """
-    Validate inputs for inclusion probabilities.
-    """
+    """Validate inputs for inclusion probabilities."""
     if np.any(x < 0.0):
         raise ValueError("elements of x must be greater than or equal to 0")
     if not np.all(np.isfinite(x)):
@@ -62,8 +56,7 @@ def _validate_input(x: npt.ArrayLike, n: int, alpha: float, cutoff: float) -> No
 
 
 class InclusionProb:
-    """
-    First-order inclusion probabilities for units in the population.
+    """First-order inclusion probabilities for units in the population.
 
     Parameters
     ----------
@@ -95,7 +88,7 @@ class InclusionProb:
     take_all : Array
         Take-all units.
     take_some : Array
-        Take-some units.    
+        Take-some units.
 
     References
     ----------
@@ -118,14 +111,14 @@ class InclusionProb:
     ```{python}
     # Units 1-4 belong to the take-some stratum, and units 5 belongs to
     # the take-all stratum
-    
+
     pi.take_some
     pi.take_all
     ```
 
     ```{python}
     # Calculate design weights for a PPS sampling scheme
-    
+
     1 / pi.values
     ```
     """
@@ -172,30 +165,22 @@ class InclusionProb:
 
     @property
     def values(self) -> np.ndarray:
-        """
-        Vector of inclusion probabilties.
-        """
+        """Vector of inclusion probabilties."""
         return self._values.copy()
 
     @property
     def n(self) -> int:
-        """
-        Sample size.
-        """
+        """Sample size."""
         return self._n
 
     @property
     def take_all(self) -> np.ndarray:
-        """
-        Take all units.
-        """
+        """Take all units."""
         return self._ta.copy()
 
     @property
     def take_some(self) -> np.ndarray:
-        """
-        Take some units.
-        """
+        """Take some units."""
         return self._ts.copy()
 
     # Inclusion probabilities are a fixed point for the inclusion
@@ -213,8 +198,7 @@ class InclusionProb:
 def becomes_ta(
     x: npt.ArrayLike, *, alpha: float = 0.001, cutoff: float = np.inf
 ) -> np.ndarray:
-    """
-    Calculate the sample size at which a unit enters the take-all stratum.
+    """Sample size at which a unit enters the take-all stratum.
 
     Parameters
     ----------

@@ -11,9 +11,7 @@ from pysps.inclusion_prob import InclusionProb
 
 
 def _igpd(shape: float) -> Callable[[npt.ArrayLike], np.ndarray]:
-    """
-    Inverse of the generalized Pareto distribution.
-    """
+    """Inverse of the generalized Pareto distribution."""
     if shape == 0.0:
         return lambda x: -np.log(1 - x)
     elif shape == 1.0:
@@ -25,9 +23,7 @@ def _igpd(shape: float) -> Callable[[npt.ArrayLike], np.ndarray]:
 def _generate_random_deviates(
     prn: npt.ArrayLike | None, pi: InclusionProb
 ) -> np.ndarray:
-    """
-    Generate a vector of random numbers for drawing a sample.
-    """
+    """Generate a vector of random numbers for drawing a sample."""
     if prn is None:
         u = np.random.default_rng().uniform(size=len(pi))
     else:
@@ -42,43 +38,31 @@ def _generate_random_deviates(
 
 
 class BaseSample:
-    """
-    Interface for sample classes. Should not be used directly.
-    """
+    """Interface for sample classes. Should not be used directly."""
 
     @property
     def units(self) -> np.ndarray:
-        """
-        Indices for units in the sample.
-        """
+        """Indices for units in the sample."""
         return self._units.copy()
 
     @property
     def weights(self) -> np.ndarray:
-        """
-        Design weights for units in the sample.
-        """
+        """Design weights for units in the sample."""
         return 1 / self._pi._values[self._units]
 
     @property
     def take_all(self) -> np.ndarray:
-        """
-        Take all units in the sample.
-        """
+        """Take all units in the sample."""
         return self._ta.copy()
 
     @property
     def take_some(self) -> np.ndarray:
-        """
-        Take some units in the sample.
-        """
+        """Take some units in the sample."""
         return self._ts.copy()
 
     @property
     def prn(self) -> np.ndarray:
-        """
-        Random numbers used for drawing the sample.
-        """
+        """Random numbers used for drawing the sample."""
         return self._prn.copy()
 
     def __len__(self) -> int:
@@ -89,8 +73,7 @@ class BaseSample:
 
 
 class OrderSample(BaseSample):
-    """
-    Order sampling scheme with fixed distribution shape.
+    """Order sampling with fixed distribution shape.
 
     Parameters
     ----------
@@ -102,11 +85,10 @@ class OrderSample(BaseSample):
         default draws a sample without permanent random numbers.
     shape : float, optional
         Shape parameter for the generalized Pareto distribution that is
-        used as the fixed order distribution shape.
+        used as the fixed order distribution shape. The default is sequential
+        Poisson sampling. Setting shape=0 gives Successive sampling and
+        shape=-1 gives Pareto order sampling.
 
-        shape=1  => Sequential Poisson sampling (the default)
-        shape=0  => Successive sampling
-        shape=-1 => Pareto order sampling
     sort_method : {'partial', 'stable'}, optional
         Sorting method to use for drawing the sample. The default
         uses a partial sort. Use 'stable' if ties should resolve in
@@ -158,25 +140,25 @@ class OrderSample(BaseSample):
 
     ```{python}
     # Get the design weights.
-    
+
     sample.weights
     ```
 
     ```{python}
     # Units 0 to 2 are take-some units...
-    
+
     sample.take_some
     ```
 
     ```{python}
     # ... and units 3 to 5 are take-all units.
-    
+
     sample.take_all
     ```
 
     ```{python}
     # Draw a Pareto order sample using the same permanent random numbers.
-    
+
     pysps.OrderSample(pi, prn, shape=-1).units
     ```
     """
@@ -221,8 +203,7 @@ class OrderSample(BaseSample):
 
 
 class PoissonSample(BaseSample):
-    """
-    Ordinary Poisson sampling.
+    """Ordinary Poisson sampling.
 
     Parameters
     ----------

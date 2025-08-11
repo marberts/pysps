@@ -83,7 +83,7 @@ def test_sort_method():
     x = [1, 2, 3, 4, 5, 6]
     prn = [0.1, 0.3, 0.2, 0.6, 0.7, 0.5]
 
-    samp1 = OrderSample(InclusionProb(x, 3))
-    samp2 = OrderSample(InclusionProb(x, 3), sort_method="stable")
+    samp1 = OrderSample(InclusionProb(x, 3), prn=prn)
+    samp2 = OrderSample(InclusionProb(x, 3), prn=prn, sort_method="stable")
 
-    np.all(samp1.units == samp2.units)
+    assert np.all(samp1.units == samp2.units)
