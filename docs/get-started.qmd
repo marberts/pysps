@@ -1,0 +1,69 @@
+---
+title: Drawing a sequential Poisson sample
+---
+
+Sequential Poisson sampling is a variation of Poisson sampling for drawing probability-proportional-to-size samples with a given number of units. It’s a fast, simple, and flexible method for sampling units proportional to their size, and is often used for drawing a sample of businesses. The purpose of this vignette is to give an example of how the functions in this package can be used to easily draw a sample using the sequential Poisson method.
+
+## Drawing a sample of businesses
+
+Consider the problem of drawing a sample of businesses in order to measure the value of sales for the current quarter. The frame is a business register that gives an enumeration of all businesses in operation, along with the revenue of each business from the previous year and the region in which they are headquartered.
+
+```{python}
+import pandas as pd
+import numpy as np
+import pysps
+
+rng = np.random.default_rng(1234)
+
+frame = pd.DataFrame({
+    "revenue": np.round(rng.uniform(size=300) * 1000),
+    "region": np.repeat(["a", "b", "c"], 100)
+})
+
+frame.head()
+```
+
+Associated with each business is a value for their sales for the current quarter, although these values are not observable for all businesses. The purpose of drawing a sample is to observe sales for a subset of businesses, and extrapolate the value of sales from the sample of business to the entire population. Sales are positively correlated with last year’s revenue, and this is the basis for sampling businesses proportional to revenue.
+
+```{python}
+sales = np.round(frame.revenue * rng.uniform(size=len(frame)))
+```
+
+Budget constraints mean that it’s feasible to draw a sample of 30 businesses. Businesses operate in different regions, and so the sample will be stratified by region. This requires determining how the total sample size of 30 is allocated across regions. A common approach is to do this allocation proportional to the total revenue in each region.
+
+```{python}
+allocation = pysps.prop_allocation(
+    frame.groupby("region")["revenue"].agg("sum"),
+    n = 30
+)
+
+allocation
+```
+
+With the sample size for each region in hand, it’s now time to draw a sample and observe the value of sales for these businesses. In practice this is usually the result of a survey that’s administered to the sampled units.
+
+```{python}
+res = {}
+for g, df in frame.groupby("region"):
+    pi = pysps.InclusionProb(df.revenue, allocation[g])
+    sample = pysps.OrderSample(pi)
+    res[g] = df.iloc[sample.units].assign(weight=sample.weights)
+
+survey = pd.concat(res.values())
+
+survey["sales"] = sales
+survey.head()
+```
+
+An important piece of information from the sampling process is the design weights, as these enable estimating the value of sales in the population with the usual Horvitz-Thompson estimator.
+
+```{python}
+ht = np.sum(survey.sales * survey.weight)
+ht
+```
+
+The Horvitz-Thompson estimator is (asymptotically) unbiased under sequential Poisson sampling, so it should be no surprise that the estimate is fairly close the true (but unknown) value of sales among all businesses.
+
+```{python}
+ht / np.sum(sales) - 1
+```

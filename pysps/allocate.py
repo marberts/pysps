@@ -97,6 +97,7 @@ def prop_allocation(
     )
     ```
     """
+    x = dict(x)
     if not set(x.keys()).issuperset(initial.keys()):
         raise ValueError("all keys in 'initial' must also be in 'x'")
     if not set(x.keys()).issuperset(available.keys()):
@@ -114,7 +115,7 @@ def prop_allocation(
         raise ValueError("'n' must be greater than or equal to 0")
 
     upper = dict.fromkeys(x.keys(), n)
-    upper.update(available | {k: 0 for k, v in x.items() if v == 0})
+    upper.update(available | {k: 0 for k, v in x.items() if v == 0.0})
 
     if n < sum(res.values()):
         raise ValueError("'n' is smaller than initial allocation")
