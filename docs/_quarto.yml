@@ -3,11 +3,12 @@ project:
 
 website:
   title: pysps
+  site-url: https://marberts.github.io/pysps
   description: Sequential Poisson sampling in Python
   navbar:
     logo: logo.png
     left:
-      - file: index.qmd
+      - file: get-started.qmd
         text: Getting started
       - href: reference/index.qmd
         text: References

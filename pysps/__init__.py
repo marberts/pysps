@@ -15,4 +15,4 @@ __all__ = [
     "divisor_method",
 ]
 
-__version__ = "0.1.1.9002"
+__version__ = "0.1.1.9003"
