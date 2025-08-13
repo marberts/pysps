@@ -25,6 +25,7 @@ requires-python = ">=3.10"
 dev = [
     "pandas",
     "quartodoc>=0.11.0",
+    "jupyter",
     "pytest>=3",
     "pytest-cov"
 ]
